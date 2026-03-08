@@ -50,19 +50,29 @@ Create `.pi/lsp.json` in the target workspace:
       "fileGlobs": ["src/*.ts", "src/*.tsx", "test/*.ts"],
       "rootMarkers": ["package.json", "tsconfig.json"],
       "command": {
-        "command": "typescript-language-server",
+        "command": "vtsls",
         "args": ["--stdio"]
       }
     },
     {
       "id": "py",
-      "name": "Pyright",
+      "name": "ty",
       "languages": ["python"],
       "fileGlobs": ["pkg/*.py", "tests/*.py"],
       "rootMarkers": ["pyproject.toml", "setup.py"],
       "command": {
-        "command": "pyright-langserver",
+        "command": "ty",
         "args": ["--stdio"]
+      }
+    },
+    {
+      "id": "rust",
+      "name": "rust-analyzer",
+      "languages": ["rust"],
+      "fileGlobs": ["src/*.rs", "tests/*.rs", "examples/*.rs"],
+      "rootMarkers": ["Cargo.toml"],
+      "command": {
+        "command": "rust-analyzer"
       }
     }
   ]
