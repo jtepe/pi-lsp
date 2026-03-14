@@ -95,7 +95,7 @@ export function loadConfig(cwd: string): ExtensionConfig {
 	throw new Error("No .pi/lsp.json or .pi/lsp.jsonc configuration found");
 }
 
-function pathHasMarker(path: string, marker: string): boolean {
+export function pathHasMarker(path: string, marker: string): boolean {
 	try {
 		accessSync(join(path, marker), constants.F_OK);
 		return true;
