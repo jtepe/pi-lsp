@@ -95,7 +95,14 @@ export function loadConfig(cwd: string): ExtensionConfig {
 	throw new Error("No .pi/lsp.json or .pi/lsp.jsonc configuration found");
 }
 
-export function pathHasMarker(path: string, marker: string): boolean {
+export function serversForWorkspace(config: ExtensionConfig, cwd: string): LspServerConfig[] {
+	return config.servers.filter((server) => {
+		if (!server.rootMarkers || server.rootMarkers.length === 0) return true;
+		return server.rootMarkers.some((marker) => pathHasMarker(cwd, marker));
+	});
+}
+
+function pathHasMarker(path: string, marker: string): boolean {
 	try {
 		accessSync(join(path, marker), constants.F_OK);
 		return true;
