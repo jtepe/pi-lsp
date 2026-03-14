@@ -89,7 +89,8 @@ export function loadConfig(cwd: string): ExtensionConfig {
 		const servers = serversValue.map((entry, index) => parseServerConfig(entry, index));
 		const defaultLimit = typeof parsed.defaultLimit === "number" ? parsed.defaultLimit : DEFAULT_LIMIT;
 		const maxLimit = typeof parsed.maxLimit === "number" ? parsed.maxLimit : DEFAULT_MAX_LIMIT;
-		return { servers, defaultLimit, maxLimit };
+		const eagerInit = parsed.eagerInit === true;
+		return { servers, defaultLimit, maxLimit, eagerInit };
 	}
 	throw new Error("No .pi/lsp.json or .pi/lsp.jsonc configuration found");
 }

@@ -101,6 +101,8 @@ export class LspClient {
 		this.state = state;
 	}
 
+	static readonly INIT_TIMEOUT_MS = 60_000;
+
 	static async start(match: WorkspaceMatch): Promise<LspClient> {
 		const child = spawn(match.server.command.command, match.server.command.args ?? [], {
 			cwd: match.rootPath,
@@ -140,7 +142,13 @@ export class LspClient {
 			state.pending.clear();
 		});
 
-		await client.initialize();
+		const timeout = new Promise<never>((_, reject) => {
+			setTimeout(
+				() => reject(new Error(`LSP server ${match.server.id} initialization timed out after ${LspClient.INIT_TIMEOUT_MS}ms`)),
+				LspClient.INIT_TIMEOUT_MS,
+			);
+		});
+		await Promise.race([client.initialize(), timeout]);
 		return client;
 	}
 

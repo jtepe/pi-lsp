@@ -30,7 +30,7 @@ function createWorkspace(): { cwd: string; logFile: string } {
 	writeFileSync(join(cwd, "test", "app.test.ts"), "runTask();\n");
 	writeFileSync(join(cwd, "pkg", "tool.py"), "def make_widget():\n    return 1\n");
 	const logFile = join(cwd, "lsp.log");
-	const serverScript = join("/home/sprite/src/pi-lsp", "test", "fake-lsp-server.ts");
+	const serverScript = join(import.meta.dir, "fake-lsp-server.ts");
 	writeFileSync(
 		join(cwd, ".pi", "lsp.json"),
 		JSON.stringify(
