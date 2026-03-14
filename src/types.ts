@@ -24,6 +24,7 @@ export interface ExtensionConfig {
 	servers: LspServerConfig[];
 	defaultLimit?: number;
 	maxLimit?: number;
+	eagerInit?: boolean;
 }
 
 export interface WorkspaceMatch {
