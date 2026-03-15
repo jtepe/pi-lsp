@@ -109,7 +109,7 @@ export function createCodeSymbolsTool(
 		promptSnippet: "Search code symbols, definitions, and references using project-configured LSP servers.",
 		promptGuidelines: [
 			"Use code_symbols for semantic symbol lookup before falling back to grep-based code search.",
-			"Partial names work: searching 'run' matches 'runTask'. Use wildcards (* and ?) for finer control like 'run*' (prefix) or '*Task' (suffix).",
+			"Partial names work: searching 'run' matches 'runTask'. For definitions and references, use wildcards (* and ?) for finer control like 'run*' (prefix) or '*Task' (suffix).",
 			"Pass includeSource only when the source snippet is needed, to keep context compact.",
 		],
 		parameters: codeSymbolsParameters,
@@ -127,9 +127,7 @@ export function createCodeSymbolsTool(
 					language: params.language,
 					serverId: params.serverId,
 				});
-				const matcher = wildcardToRegExp(normalizeQuery(params.name));
 				const locations = (await client.workspaceSymbols(params.name))
-					.filter((symbol) => matcher.test(symbol.name))
 					.slice(0, limit)
 					.map((symbol) => client.resolveWorkspaceSymbol(symbol));
 				const withSource = await attachSource(
