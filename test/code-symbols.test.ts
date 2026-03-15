@@ -115,6 +115,33 @@ describe("code_symbols", () => {
 		expect(log).toContain("shutdown:typescript");
 	});
 
+	test("search matches partial names without explicit wildcards", async () => {
+		const { cwd } = createWorkspace();
+		const manager = new LspServerManager();
+		const tool = createCodeSymbolsTool(manager, new SourceExtractor());
+
+		const result = await tool.execute(
+			"tool-call-partial",
+			{
+				action: "search",
+				name: "Task",
+				filePath: "src/app.ts",
+			},
+			undefined,
+			undefined,
+			createContext(cwd),
+		);
+
+		expect(result.content[0]?.type).toBe("text");
+		if (result.content[0]?.type !== "text") {
+			throw new Error("Expected text result");
+		}
+		expect(result.content[0].text).toContain("runTask");
+		expect(result.details?.count).toBe(1);
+
+		await manager.stopAll();
+	});
+
 	test("definitions use document symbols and definition lookup", async () => {
 		const { cwd, logFile } = createWorkspace();
 		const manager = new LspServerManager();
