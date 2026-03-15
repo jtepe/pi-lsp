@@ -34,12 +34,12 @@ test/
 
 All commands use `bun`, not `npm` or `node`.
 
-| Command          | Purpose                              |
-| ---------------- | ------------------------------------ |
-| `bun install`    | Install dependencies                 |
-| `bun test`       | Run tests                            |
-| `bun run check`  | Type-check with `tsc --noEmit`       |
-| `bun run format` | Auto-format all files with Prettier  |
+| Command          | Purpose                             |
+| ---------------- | ----------------------------------- |
+| `bun install`    | Install dependencies                |
+| `bun test`       | Run tests                           |
+| `bun run check`  | Type-check with `tsc --noEmit`      |
+| `bun run format` | Auto-format all files with Prettier |
 
 ## Workflow requirements
 
