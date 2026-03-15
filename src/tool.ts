@@ -30,6 +30,13 @@ interface SourceExtractor {
 	expandSymbolSource(location: ResolvedSymbolLocation, serverTreeSitterLanguage: string | undefined): Promise<string | undefined>;
 }
 
+function normalizeQuery(query: string): string {
+	if (!query.includes("*") && !query.includes("?")) {
+		return `*${query}*`;
+	}
+	return query;
+}
+
 function wildcardToRegExp(pattern: string): RegExp {
 	const escaped = pattern.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*").replace(/\?/g, ".");
 	return new RegExp(`^${escaped}$`, "i");
@@ -83,7 +90,7 @@ async function findDocumentSymbolCandidate(
 		serverId: params.serverId,
 	});
 	const candidates = await client.documentSymbols(absolutePath);
-	const matcher = wildcardToRegExp(params.name);
+	const matcher = wildcardToRegExp(normalizeQuery(params.name));
 	const candidate = candidates.find((item) => matcher.test(item.name));
 	if (!candidate) {
 		throw new Error(`No document symbol matching "${params.name}" found in ${params.filePath}`);
@@ -102,6 +109,7 @@ export function createCodeSymbolsTool(
 		promptSnippet: "Search code symbols, definitions, and references using project-configured LSP servers.",
 		promptGuidelines: [
 			"Use code_symbols for semantic symbol lookup before falling back to grep-based code search.",
+			"Partial names work: searching 'run' matches 'runTask'. Use wildcards (* and ?) for finer control like 'run*' (prefix) or '*Task' (suffix).",
 			"Pass includeSource only when the source snippet is needed, to keep context compact.",
 		],
 		parameters: codeSymbolsParameters,
@@ -119,7 +127,7 @@ export function createCodeSymbolsTool(
 					language: params.language,
 					serverId: params.serverId,
 				});
-				const matcher = wildcardToRegExp(params.name);
+				const matcher = wildcardToRegExp(normalizeQuery(params.name));
 				const locations = (await client.workspaceSymbols(params.name))
 					.filter((symbol) => matcher.test(symbol.name))
 					.slice(0, limit)
