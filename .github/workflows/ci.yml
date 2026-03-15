@@ -15,7 +15,18 @@ jobs:
         with:
           bun-version: latest
 
+      - name: Cache Bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            bun-${{ runner.os }}-
+
       - run: bun install --frozen-lockfile
+
+      - name: Format check
+        run: bunx prettier --check .
 
       - name: Type check
         run: bun run check
