@@ -89,7 +89,7 @@ describe("code_symbols", () => {
 			"tool-call-1",
 			{
 				action: "search",
-				name: "run*",
+				name: "run",
 				filePath: "src/app.ts",
 			},
 			undefined,
