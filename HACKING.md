@@ -178,10 +178,10 @@ The `"pi".extensions` field in `package.json` tells pi which file to load when t
 
 GitHub Actions runs on every PR to `main`:
 
-| Check     | Command                    |
-| --------- | -------------------------- |
-| Format    | `bunx prettier --check .`  |
-| Types     | `bun run check`            |
-| Tests     | `bun test`                 |
+| Check  | Command                   |
+| ------ | ------------------------- |
+| Format | `bunx prettier --check .` |
+| Types  | `bun run check`           |
+| Tests  | `bun test`                |
 
 Fix formatting automatically with `bun run format` before pushing.
