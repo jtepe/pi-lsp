@@ -154,10 +154,7 @@ export function getGlobalConfigDir(): string {
   return GLOBAL_CONFIG_DIR;
 }
 
-export function loadConfig(
-  cwd: string,
-  globalDir?: string,
-): ExtensionConfig {
+export function loadConfig(cwd: string, globalDir?: string): ExtensionConfig {
   const effectiveGlobalDir = globalDir ?? GLOBAL_CONFIG_DIR;
   const globalConfig = loadConfigFromDir(effectiveGlobalDir, "~/.pi");
   const localConfig = loadConfigFromDir(cwd, cwd);
