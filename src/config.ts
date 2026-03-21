@@ -1,5 +1,6 @@
 import { accessSync, constants, existsSync, readFileSync } from "node:fs";
 import { dirname, extname, join, resolve } from "node:path";
+import { homedir } from "node:os";
 import { minimatch } from "minimatch";
 import type {
   ExtensionConfig,
@@ -8,6 +9,7 @@ import type {
 } from "./types.js";
 
 const CONFIG_CANDIDATES = [".pi/lsp.json", ".pi/lsp.jsonc"];
+const GLOBAL_CONFIG_DIR = join(homedir(), ".pi");
 const DEFAULT_LIMIT = 25;
 const DEFAULT_MAX_LIMIT = 100;
 
@@ -103,16 +105,21 @@ function parseServerConfig(value: unknown, index: number): LspServerConfig {
   };
 }
 
-export function loadConfig(cwd: string): ExtensionConfig {
+function loadConfigFromDir(
+  dir: string,
+  label: string,
+): ExtensionConfig | undefined {
   for (const candidate of CONFIG_CANDIDATES) {
-    const path = resolve(cwd, candidate);
+    const path = resolve(dir, candidate);
     if (!existsSync(path)) continue;
     const parsed = JSON.parse(
       stripJsonComments(readFileSync(path, "utf8")),
     ) as Record<string, unknown>;
     const serversValue = parsed.servers;
     if (!Array.isArray(serversValue) || serversValue.length === 0) {
-      throw new Error(`${candidate} must define a non-empty servers array`);
+      throw new Error(
+        `${label}/${candidate} must define a non-empty servers array`,
+      );
     }
     const servers = serversValue.map((entry, index) =>
       parseServerConfig(entry, index),
@@ -126,6 +133,41 @@ export function loadConfig(cwd: string): ExtensionConfig {
     const eagerInit = parsed.eagerInit === true;
     return { servers, defaultLimit, maxLimit, eagerInit };
   }
+  return undefined;
+}
+
+function mergeConfigs(
+  global: ExtensionConfig,
+  local: ExtensionConfig,
+): ExtensionConfig {
+  const localIds = new Set(local.servers.map((s) => s.id));
+  const globalOnly = global.servers.filter((s) => !localIds.has(s.id));
+  return {
+    servers: [...local.servers, ...globalOnly],
+    defaultLimit: local.defaultLimit ?? global.defaultLimit,
+    maxLimit: local.maxLimit ?? global.maxLimit,
+    eagerInit: local.eagerInit ?? global.eagerInit,
+  };
+}
+
+export function getGlobalConfigDir(): string {
+  return GLOBAL_CONFIG_DIR;
+}
+
+export function loadConfig(
+  cwd: string,
+  globalDir?: string,
+): ExtensionConfig {
+  const effectiveGlobalDir = globalDir ?? GLOBAL_CONFIG_DIR;
+  const globalConfig = loadConfigFromDir(effectiveGlobalDir, "~/.pi");
+  const localConfig = loadConfigFromDir(cwd, cwd);
+
+  if (localConfig && globalConfig) {
+    return mergeConfigs(globalConfig, localConfig);
+  }
+  if (localConfig) return localConfig;
+  if (globalConfig) return globalConfig;
+
   throw new Error("No .pi/lsp.json or .pi/lsp.jsonc configuration found");
 }
 
